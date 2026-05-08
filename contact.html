@@ -162,6 +162,7 @@
 </footer>
 
 <script>
+  // Contact form
   document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('fname').value;
@@ -173,8 +174,31 @@
     const mailto = `mailto:info@wgni.ng?cc=wgniconsultingltd@gmail.com&subject=${encodeURIComponent(subject + ' — WGNI Website Enquiry')}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
   });
-  const obs = new IntersectionObserver(e => e.forEach(el => { if(el.isIntersecting) el.target.classList.add('visible'); }), {threshold:0.1});
+
+  // Fade animation
+  const obs = new IntersectionObserver(e => e.forEach(el => {
+    if(el.isIntersecting) el.target.classList.add('visible');
+  }), {threshold:0.1});
   document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+  setTimeout(() => document.querySelectorAll('section .fade-up').forEach((el,i) => setTimeout(()=>el.classList.add('visible'),i*220)), 100);
+
+  // Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  if(hamburger && mobileMenu) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+  }
 </script>
 </body>
 </html>
