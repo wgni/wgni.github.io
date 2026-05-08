@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Fashola — ACME Project Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/font/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'DM Sans',sans-serif;background:#f0ede8;color:#1a1a18;min-height:100vh;-webkit-font-smoothing:antialiased}
+#login-screen{position:fixed;inset:0;background:#1a1a18;display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;padding-bottom:max(1.5rem,env(safe-area-inset-bottom))}
+.login-box{background:#222220;border:0.5px solid #2e2e2a;border-radius:16px;padding:2rem 1.75rem;width:100%;max-width:360px}
+.login-brand{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#c8a96e;margin-bottom:4px}
+.login-title{font-size:22px;font-weight:500;color:#f5f4f0;margin-bottom:4px}
+.login-sub{font-size:13px;color:#555;margin-bottom:1.75rem;line-height:1.5}
+.login-label{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#777;margin-bottom:8px;display:block}
+.login-input{width:100%;background:#1a1a18;border:0.5px solid #3a3a38;border-radius:10px;padding:13px 16px;font-size:16px;color:#f5f4f0;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.login-input:focus{border-color:#c8a96e}
+.login-btn{width:100%;margin-top:1rem;background:#c8a96e;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:500;color:#1a1a18;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity 0.2s}
+.login-btn:active{opacity:0.8}
+.login-error{font-size:12px;color:#e24b4a;margin-top:8px;display:none}
+.login-footer{font-size:11px;color:#3a3a38;margin-top:1.5rem;text-align:center}
+#app{display:none}
+.topbar{background:#1a1a18;padding:1rem 1.25rem;padding-top:max(1rem,env(safe-area-inset-top));display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem}
+.topbar-brand{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#c8a96e;margin-bottom:3px}
+.topbar-title{font-size:16px;font-weight:500;color:#f5f4f0;line-height:1.25}
+.topbar-sub{font-size:11px;color:#555;margin-top:2px}
+.topbar-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0}
+.pill-active{background:#c8a96e;color:#1a1a18;font-size:9px;font-weight:500;padding:3px 10px;border-radius:20px;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
+.pill-date{font-size:10px;color:#555;white-space:nowrap}
+.report-strip{background:#111110;border-bottom:1px solid #2a2a28;padding:0.65rem 1.25rem;display:flex;justify-content:space-between;align-items:center;gap:0.75rem}
+.rs-label{display:flex;flex-direction:column;gap:1px;min-width:0}
+.rs-tag{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#c8a96e}
+.rs-title{font-size:12px;font-weight:500;color:#f5f4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-date{font-size:10px;color:#555}
+.rs-btn{background:#c8a96e;border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:500;color:#1a1a18;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;text-decoration:none;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.rs-btn:active{opacity:0.8}
+.lock-btn{background:none;border:none;color:#444;font-size:20px;cursor:pointer;padding:0;line-height:1}
+nav{background:#1a1a18;border-top:1px solid #2a2a28;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0.5rem}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:none;color:#555;font-family:'DM Sans',sans-serif;font-size:12px;padding:0.7rem 0.9rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;-webkit-appearance:none}
+nav button.active{color:#c8a96e;border-bottom-color:#c8a96e}
+nav button:active{color:#f5f4f0}
+.page{display:none;padding:1.25rem;padding-bottom:max(1.25rem,env(safe-area-inset-bottom))}.page.active{display:block}
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1rem}
+.metric{background:#fff;border-radius:10px;padding:0.85rem 1rem;border:0.5px solid #e0ddd6}
+.metric-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin-bottom:5px}
+.metric-value{font-size:22px;font-weight:500;color:#1a1a18;line-height:1}
+.metric-sub{font-size:10px;color:#c8a96e;margin-top:3px}
+.card{background:#fff;border-radius:12px;border:0.5px solid #e0ddd6;padding:1rem 1.1rem;margin-bottom:1rem}
+.card-title{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin-bottom:0.9rem;font-weight:500}
+.progress-item{margin-bottom:11px}.progress-item:last-child{margin-bottom:0}
+.pi-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.pi-name{font-size:13px;font-weight:500;color:#1a1a18}
+.pi-pct{font-size:11px;color:#888}
+.bar-track{background:#f0ede8;border-radius:99px;height:5px;overflow:hidden}
+.bar-fill{height:5px;border-radius:99px;transition:width 1.2s ease}
+.bar-gold{background:#c8a96e}.bar-green{background:#4a7c59}.bar-gray{background:#d0ccc4}
+.pi-tag{font-size:10px;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block}
+.tag-done{background:#eaf3de;color:#3b6d11}.tag-active{background:#faeeda;color:#854f0b}.tag-pending{background:#f1efe8;color:#5f5e5a}
+.kanban{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:640px){.kanban{grid-template-columns:1fr 1fr 1fr}}
+.kanban-header{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;padding:0 0 0.6rem;display:flex;align-items:center;gap:6px}
+.kh-done{color:#4a7c59}.kh-active{color:#c8a96e}.kh-pending{color:#aaa}
+.k-count{font-size:10px;padding:1px 7px;border-radius:20px}
+.kc-done{background:#eaf3de;color:#3b6d11}.kc-active{background:#faeeda;color:#854f0b}.kc-pending{background:#f1efe8;color:#5f5e5a}
+.k-card{background:#fff;border:0.5px solid #e0ddd6;border-radius:8px;padding:0.75rem 0.9rem;margin-bottom:8px}
+.k-card-title{font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:3px}
+.k-card-note{font-size:12px;color:#888;line-height:1.5}
+.k-card.active-card{border-left:2px solid #c8a96e;border-radius:0 8px 8px 0}
+.k-card.done-card{border-left:2px solid #4a7c59;border-radius:0 8px 8px 0}
+.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:480px){.photo-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:768px){.photo-grid{grid-template-columns:repeat(4,1fr)}}
+.photo-item{border-radius:10px;overflow:hidden;background:#e8e4de;aspect-ratio:4/3;position:relative}
+.photo-item img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(26,26,24,0.78);color:#f5f4f0;font-size:10px;padding:5px 8px}
+.photo-fallback{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#aaa;font-size:11px;text-align:center;padding:0.75rem;background:#f0ede8}
+.photo-filename{font-size:9px;color:#c8a96e;font-family:monospace;margin-top:1px}
+.photo-section-title{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin:1rem 0 0.5rem;font-weight:500}
+.tl{position:relative;padding-left:1.1rem}
+.tl::before{content:'';position:absolute;left:4px;top:0;bottom:0;width:1px;background:#e0ddd6}
+.tl-item{position:relative;margin-bottom:1.25rem}
+.tl-dot{position:absolute;left:-1.1rem;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid #f0ede8}
+.td-now{background:#c8a96e;box-shadow:0 0 0 1px #c8a96e}
+.td-past{background:#4a7c59;box-shadow:0 0 0 1px #4a7c59}
+.tl-date{font-size:10px;color:#c8a96e;letter-spacing:0.06em;text-transform:uppercase}
+.tl-title{font-size:13px;font-weight:500;color:#1a1a18;margin:2px 0}
+.tl-desc{font-size:12px;color:#888;line-height:1.5}
+.focus-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.focus-item:last-child{margin-bottom:0}
+.focus-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.focus-text{font-size:13px;color:#1a1a18;line-height:1.5}
+.personnel-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid #f0ede8}
+.personnel-row:last-child{border-bottom:none}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(min-width:480px){.team-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+.team-card{background:#fff;border:0.5px solid #e0ddd6;border-radius:10px;padding:0.85rem 0.9rem;display:flex;gap:9px;align-items:flex-start}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.av-gold{background:#faeeda;color:#854f0b}.av-green{background:#eaf3de;color:#3b6d11}
+.av-blue{background:#e6f1fb;color:#185fa5}.av-gray{background:#f1efe8;color:#5f5e5a}
+.team-name{font-size:12px;font-weight:500;color:#1a1a18;margin-bottom:2px}
+.team-role{font-size:11px;color:#888;line-height:1.4}
+.team-type{font-size:10px;padding:2px 7px;border-radius:20px;margin-top:4px;display:inline-block}
+.tt-contract{background:#faeeda;color:#854f0b}.tt-inhouse{background:#eaf3de;color:#3b6d11}.tt-advisor{background:#f1efe8;color:#5f5e5a}
+.notice{padding:0.85rem 1rem;background:#fff;border:0.5px solid #e0ddd6;border-radius:8px;font-size:11px;color:#888;line-height:1.6;margin-top:0.75rem}
+.notice code{background:#f0ede8;padding:1px 5px;border-radius:4px;color:#5f5e5a;font-size:10px}
+.plan-card{background:#fff;border:0.5px solid #e0ddd6;border-radius:10px;padding:0.9rem 1rem;margin-bottom:8px}
+.plan-card-title{font-size:12px;font-weight:500;color:#1a1a18;margin-bottom:3px}
+.plan-card-note{font-size:11px;color:#888;line-height:1.5}
+.floor-plan-img{width:100%;border-radius:8px;border:0.5px solid #e0ddd6;display:block}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-brand">WGNI / ACME Mercury Limited</div>
+    <div class="login-title">Project Tracker</div>
+    <div class="login-sub">Fashola Cassava Processing Facility &mdash; Internal access only</div>
+    <label class="login-label" for="pwd">Password</label>
+    <input class="login-input" type="password" id="pwd" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+    <button class="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-footer">WGNI Operations &nbsp;&middot;&nbsp; Internal use only</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-brand">WGNI / ACME Mercury Limited</div>
+      <div class="topbar-title">Fashola Cassava<br>Processing Facility</div>
+      <div class="topbar-sub">Phase 1 &mdash; Civil Works &nbsp;&middot;&nbsp; Fashola, Oyo State</div>
+    </div>
+    <div class="topbar-right">
+      <button class="lock-btn" onclick="doLogout()" aria-label="Lock screen"><i class="ti ti-lock" aria-hidden="true"></i></button>
+      <div class="pill-active">Active</div>
+      <div class="pill-date">7 May 2026</div>
+    </div>
+  </div>
+
+  <div class="report-strip">
+    <div class="rs-label">
+      <div class="rs-tag">Latest report</div>
+      <div class="rs-title">Site Update &mdash; May 7, 2026</div>
+      <div class="rs-date">Gate pillar &middot; Sand filling &middot; Flooring</div>
+    </div>
+    <a class="rs-btn" href="reports/fashola-update-07-may-2026.pdf" download>
+      <i class="ti ti-download" style="font-size:14px" aria-hidden="true"></i> Download PDF
+    </a>
+  </div>
+
+  <nav>
+    <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+    <button onclick="showPage('tasks',this)">Tasks</button>
+    <button onclick="showPage('photos',this)">Photos</button>
+    <button onclick="showPage('plans',this)">Floor Plans</button>
+    <button onclick="showPage('team',this)">Team</button>
+    <button onclick="showPage('timeline',this)">Timeline</button>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="page active">
+    <div class="metrics-row">
+      <div class="metric"><div class="metric-label">Progress</div><div class="metric-value">58<span style="font-size:13px;color:#aaa">%</span></div><div class="metric-sub">Phase 1</div></div>
+      <div class="metric"><div class="metric-label">Completed</div><div class="metric-value">7</div><div class="metric-sub">workstreams</div></div>
+      <div class="metric"><div class="metric-label">Active</div><div class="metric-value">3</div><div class="metric-sub">in progress</div></div>
+      <div class="metric"><div class="metric-label">Pending</div><div class="metric-value">3</div><div class="metric-sub">awaiting</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Workstream progress</div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Perimeter fencing</span><span class="pi-pct">98%</span></div><div class="bar-track"><div class="bar-fill bar-green" style="width:0" data-w="98%"></div></div><span class="pi-tag tag-active">Small section pending backfill</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Gate installation</span><span class="pi-pct">85%</span></div><div class="bar-track"><div class="bar-fill bar-gold" style="width:0" data-w="85%"></div></div><span class="pi-tag tag-active">Pillar correction ongoing</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Staff quarters &mdash; foundation</span><span class="pi-pct">75%</span></div><div class="bar-track"><div class="bar-fill bar-gold" style="width:0" data-w="75%"></div></div><span class="pi-tag tag-active">Sand filling ongoing</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Factory building &mdash; flooring</span><span class="pi-pct">20%</span></div><div class="bar-track"><div class="bar-fill bar-gold" style="width:0" data-w="20%"></div></div><span class="pi-tag tag-active">Mixer on site &mdash; commencing today</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Transformer house</span><span class="pi-pct">100%</span></div><div class="bar-track"><div class="bar-fill bar-green" style="width:0" data-w="100%"></div></div><span class="pi-tag tag-done">Floored, plastered, mesh enclosure complete</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Transformer &mdash; grid connection</span><span class="pi-pct">40%</span></div><div class="bar-track"><div class="bar-fill bar-gray" style="width:0" data-w="40%"></div></div><span class="pi-tag tag-pending">Documentation in progress</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Solar camera installation</span><span class="pi-pct">100%</span></div><div class="bar-track"><div class="bar-fill bar-green" style="width:0" data-w="100%"></div></div><span class="pi-tag tag-done">Completed April 17</span></div>
+      <div class="progress-item"><div class="pi-header"><span class="pi-name">Admin / office quarters</span><span class="pi-pct">0%</span></div><div class="bar-track"><div class="bar-fill bar-gray" style="width:0" data-w="0%"></div></div><span class="pi-tag tag-pending">Suspended &mdash; revised plan pending</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's focus &mdash; 7 May 2026</div>
+      <div class="focus-item"><div class="focus-dot" style="background:#c8a96e"></div><div class="focus-text">Factory building flooring to commence &mdash; follow up with site coordinator</div></div>
+      <div class="focus-item"><div class="focus-dot" style="background:#c8a96e"></div><div class="focus-text">Gate pillar chiseling ongoing &mdash; filing and plastering to follow</div></div>
+      <div class="focus-item"><div class="focus-dot" style="background:#c8a96e"></div><div class="focus-text">Staff quarters sand filling &mdash; target completion this week</div></div>
+      <div class="focus-item"><div class="focus-dot" style="background:#4a7c59"></div><div class="focus-text" style="color:#888">Remaining perimeter section pending backfill completion</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Site photos &mdash; May 7, 2026</div>
+      <div class="photo-grid" id="dash-photos"></div>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div id="tasks" class="page">
+    <div class="kanban">
+      <div>
+        <div class="kanban-header kh-done"><i class="ti ti-circle-check" aria-hidden="true"></i> Completed <span class="k-count kc-done">7</span></div>
+        <div class="k-card done-card"><div class="k-card-title">Epoxy first coat &mdash; factory floor</div><div class="k-card-note">First coat applied April 15. Floor subsequently broken and cleared after structural deficiency (no gravel sub-base) was identified. Full reflooring now underway.</div></div>
+        <div class="k-card done-card"><div class="k-card-title">Factory building &mdash; floor breaking</div><div class="k-card-note">Full floor broken and cleared by manual labour. Completed by April 30.</div></div>
+        <div class="k-card done-card"><div class="k-card-title">Perimeter fencing &mdash; all main sections</div><div class="k-card-note">Back, left, right, and front sections completed. Extra block courses added for uniform height. Completed by April 30.</div></div>
+        <div class="k-card done-card"><div class="k-card-title">Transformer &mdash; physical installation and house</div><div class="k-card-note">Transformer installed April 17. House floored, plastered, and mesh enclosure with barbed wire completed by April 30.</div></div>
+        <div class="k-card done-card"><div class="k-card-title">Solar camera installation</div><div class="k-card-note">Poles set and cameras installed. Completed April 17.</div></div>
+        <div class="k-card done-card"><div class="k-card-title">Staff quarters &mdash; foundation digging and block work</div><div class="k-card-note">Foundation digging commenced April 23. 9-inch hollow blocks laid 3&ndash;5 courses below ground, 1 course above. Completed April 29.</div></div>
+        <div class="k-card done-card"><div class="k-card-title">Staff quarters &mdash; pillar installation</div><div class="k-card-note">8mm and 10mm rods with wire mesh installed. Completed ahead of May 7.</div></div>
+      </div>
+      <div>
+        <div class="kanban-header kh-active"><i class="ti ti-loader" aria-hidden="true"></i> In progress <span class="k-count kc-active">3</span></div>
+        <div class="k-card active-card"><div class="k-card-title">Gate pillar &mdash; correction works</div><div class="k-card-note">Poor workmanship identified in original casting. Pillar visibly uneven. Chiseling commenced May 6 and is ongoing. Filing and plastering to follow. Square pipe (3mm), chisel and mallet on site.</div></div>
+        <div class="k-card active-card"><div class="k-card-title">Staff quarters &mdash; sand filling</div><div class="k-card-note">6-inch block reinforcement course laid over 9-inch foundation to resist lateral pressure. Sand filling commenced. Target completion this week.</div></div>
+        <div class="k-card active-card"><div class="k-card-title">Factory building &mdash; flooring</div><div class="k-card-note">Concrete mixer delivered May 6. Flooring expected to commence today. Sequence: gravel, screed, epoxy application. Follow up with site coordinator.</div></div>
+      </div>
+      <div>
+        <div class="kanban-header kh-pending"><i class="ti ti-clock" aria-hidden="true"></i> Pending <span class="k-count kc-pending">3</span></div>
+        <div class="k-card"><div class="k-card-title">Perimeter fencing &mdash; remaining section</div><div class="k-card-note">Small portion at one end blocked by sand stockpile. To be completed once backfilling in that area is concluded.</div></div>
+        <div class="k-card"><div class="k-card-title">Transformer &mdash; grid connection and activation</div><div class="k-card-note">Registration and documentation with the relevant authority still in progress. Activation to follow upon completion.</div></div>
+        <div class="k-card"><div class="k-card-title">Admin / office quarters &mdash; construction</div><div class="k-card-note">Foundation digging commenced April 22 then suspended in favour of Staff Quarters. Works remain suspended. Revised plan to be communicated. Layout plan (12m x 15m) already developed.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div id="photos" class="page">
+    <div class="photo-section-title">May 7, 2026 &mdash; Current site</div>
+    <div class="photo-grid" id="full-photos-may"></div>
+
+    <div class="photo-section-title">April 30, 2026 &mdash; Gate, fencing, staff quarters</div>
+    <div class="photo-grid" id="full-photos-apr30"></div>
+
+    <div class="photo-section-title">April 16&ndash;21, 2026 &mdash; Fencing, block laying, cement stock, factory floor</div>
+    <div class="photo-grid" id="full-photos-apr16"></div>
+
+    <div class="notice">
+      Place photo files in the <code>images/</code> folder using the exact filenames below. Photos will display automatically once uploaded.
+    </div>
+  </div>
+
+  <!-- FLOOR PLANS -->
+  <div id="plans" class="page">
+    <div class="card">
+      <div class="card-title">Proposed staff quarters layout &mdash; 24m x 11.5m</div>
+      <img src="images/staff-quarters-layout.jpg" alt="Staff quarters floor plan" class="floor-plan-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="notice" style="display:none">Upload as <code>images/staff-quarters-layout.jpg</code></div>
+      <div style="margin-top:0.75rem;font-size:12px;color:#888;line-height:1.6">
+        Male Dormitory 1 (6.5m) &middot; Female Dormitory (8.5m) &middot; Toilets and Bathroom block (5m) &middot; Central Lobby &middot; Male Dormitory 2 (16m) &middot; Common Room (4m x 6.5m) &middot; Janitor Store &middot; Urinals &middot; Shower
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Proposed admin / office quarters layout &mdash; 12m x 15m</div>
+      <img src="images/admin-quarters-layout.jpg" alt="Admin quarters floor plan" class="floor-plan-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="notice" style="display:none">Upload as <code>images/admin-quarters-layout.jpg</code></div>
+      <div style="margin-top:0.75rem;font-size:12px;color:#888;line-height:1.6">
+        Board Room &middot; 3 Offices &middot; Reception area &middot; Toilets &middot; Total footprint: 12m x 15m
+      </div>
+    </div>
+    <div class="notice">
+      Save floor plan images as <code>images/staff-quarters-layout.jpg</code> and <code>images/admin-quarters-layout.jpg</code>
+    </div>
+  </div>
+
+  <!-- TEAM -->
+  <div id="team" class="page">
+    <div class="card">
+      <div class="card-title">Construction team</div>
+      <div class="team-grid">
+        <div class="team-card"><div class="avatar av-gold">MC</div><div><div class="team-name">Main construction crew</div><div class="team-role">Daily-hire artisans responsible for the majority of civil works. Block laying, foundation works, sand filling, and general construction.</div><span class="team-type tt-contract">Daily hire</span></div></div>
+        <div class="team-card"><div class="avatar av-green">BA</div><div><div class="team-name">Block laying artisan</div><div class="team-role">In-house artisan. Block laying, bricklaying, and gate pillar correction works.</div><span class="team-type tt-inhouse">In-house</span></div></div>
+        <div class="team-card"><div class="avatar av-blue">EC</div><div><div class="team-name">Epoxy contractor</div><div class="team-role">In-house engineer / contractor. Factory floor epoxy application and finishing works. Identified factory floor structural deficiency April 2026.</div><span class="team-type tt-inhouse">In-house</span></div></div>
+        <div class="team-card"><div class="avatar av-gray">SC</div><div><div class="team-name">Site coordinator</div><div class="team-role">Oversees and coordinates all site activities. Present on site daily. Relationship-based engagement.</div><span class="team-type tt-advisor">Advisor</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div id="timeline" class="page">
+    <div class="card">
+      <div class="card-title">Project timeline &mdash; Phase 1 civil works</div>
+      <div class="tl">
+        <div class="tl-item"><div class="tl-dot td-now"></div><div class="tl-date">7 May 2026 &mdash; Today</div><div class="tl-title">Sand filling ongoing &middot; Gate pillar correction &middot; Factory flooring commencing</div><div class="tl-desc">Sand filling of Staff Quarters foundation active, 6-inch reinforcement block course in place. Gate pillar chiseling ongoing &mdash; filing and plastering to follow. Concrete mixer delivered May 6. Factory building flooring expected to commence today, sequence: gravel, screed, epoxy.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">6 May 2026</div><div class="tl-title">Concrete mixer delivered &middot; Gate pillar chiseling commenced</div><div class="tl-desc">Concrete mixer mobilised to site. Gate pillar chiseling commenced. Square pipe (3mm), chisel and mallet procured for correction works.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">30 April 2026</div><div class="tl-title">Gate casting complete &middot; Perimeter fencing complete &middot; 840 blocks moulded</div><div class="tl-desc">Gate structure finalised and casting completed. Perimeter fencing completed on all sides &mdash; extra block courses added for uniform height. 28 bags cement used producing approximately 840 hollow blocks. Pillar iron (8mm, 10mm rods, wire mesh) received and staged. 200 bags Dangote cement received, stored in factory building.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">21&ndash;29 April 2026</div><div class="tl-title">Staff quarters foundation block work complete &middot; Transformer house complete</div><div class="tl-desc">Foundation digging commenced April 23. 9-inch hollow blocks laid 3&ndash;5 courses below ground, 1 course above. Block work completed April 29. Transformer house floored, plastered, and mesh enclosure with barbed wire completed. Multiple sand trips received on site.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">22&ndash;23 April 2026</div><div class="tl-title">Floor breaking 40% complete &middot; Foundation digging commenced &middot; Fencing completed</div><div class="tl-desc">Factory building floor breaking ongoing by manual labour, 40% complete by April 23. Foundation digging started for Admin Quarters on April 22, redirected to Staff Quarters on April 23 as priority. Perimeter fencing completed across all boundaries &mdash; small section left deliberately for sand backfilling around Admin Quarters.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">20 April 2026</div><div class="tl-title">Back fencing complete &middot; Gate installation commenced &middot; Left side at 80%</div><div class="tl-desc">Back perimeter fencing fully completed. Left side fencing at 80% completion. Gate installation commenced April 20. Block moulding continued: 770 units of 6-inch blocks produced (22 bags). Transformer physically installed but not yet connected to grid.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">18 April 2026</div><div class="tl-title">Factory floor deficiency identified &middot; Decision to refloor &middot; 895 blocks moulded</div><div class="tl-desc">Epoxy contractor inspected factory floor and identified structural deficiency: only sand was used as sub-base with no gravel layer, causing widespread cracking. Decision taken to break and refloor the entire factory space before any epoxy application proceeds. 895 units of 9-inch hollow blocks moulded on site.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">17 April 2026</div><div class="tl-title">Solar cameras installed &middot; Transformer installation commenced &middot; Left side block laying</div><div class="tl-desc">Solar security camera poles set and cameras installed on site. Transformer installation commenced and was expected to be completed April 17. Left side perimeter block laying commenced following completion of foundation blinding. Three-person block laying team deployed across left side and back perimeter.</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">16 April 2026</div><div class="tl-title">Materials received &middot; 1,050 blocks moulded &middot; Left side blinding complete &middot; Gate received</div><div class="tl-desc">30 tonnes stone sand, 30 tonnes gravel, and 30 tonnes granite/stone dust received from Ibadan. Gate received on site, installation planned for April 20. Left side foundation blinding completed (100%). 1,050 units of 6-inch hollow blocks moulded (30 bags, 35 per bag). Residential Quarters site marking carried out. Two taps constructed on site. Back perimeter block laying continued by one artisan (negotiation breakdown with expected teams).</div></div>
+
+        <div class="tl-item"><div class="tl-dot td-past"></div><div class="tl-date">15 April 2026</div><div class="tl-title">First site report &middot; Epoxy first coat commenced &middot; Block laying active</div><div class="tl-desc">Epoxy paint application commenced on factory building floor. Back section and right half completed, approximately 50% of total floor area. Perimeter fencing block laying active on back and left sections. 260 bags Elephant ECOPlanet cement confirmed on site across inner store and factory building.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PASS='wgni@8012';
+const SK='acme_auth';
+function doLogin(){
+  const v=document.getElementById('pwd').value;
+  const e=document.getElementById('login-error');
+  if(v===PASS){
+    sessionStorage.setItem(SK,'1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    e.style.display='none';
+    init();
+  } else {
+    e.style.display='block';
+    document.getElementById('pwd').value='';
+    document.getElementById('pwd').focus();
+  }
+}
+function doLogout(){
+  sessionStorage.removeItem(SK);
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('pwd').value='';
+}
+if(sessionStorage.getItem(SK)==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  setTimeout(init,100);
+}
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+function animateBars(){
+  document.querySelectorAll('.bar-fill[data-w]').forEach(b=>{
+    const w=b.getAttribute('data-w');
+    b.style.width='0';
+    setTimeout(()=>{b.style.width=w;},250);
+  });
+}
+
+const photosMay=[
+  {file:'images/gate-pillar.jpg',label:'Gate pillar correction'},
+  {file:'images/staff-quarters-foundation.jpg',label:'Staff quarters foundation'},
+  {file:'images/sand-filling.jpg',label:'Sand filling'},
+  {file:'images/overview.jpg',label:'Site overview'},
+  {file:'images/pillar-rods.jpg',label:'Pillar rods on site'},
+  {file:'images/perimeter-fencing.jpg',label:'Perimeter fencing'},
+  {file:'images/sand-filling-detail.jpg',label:'Sand filling detail'}
+];
+
+const photosApr30=[
+  {file:'images/apr30-gate-casting.jpg',label:'Gate casting complete'},
+  {file:'images/apr30-staff-quarters.jpg',label:'Staff quarters foundation'},
+  {file:'images/apr30-fencing-complete.jpg',label:'Perimeter fencing completed'},
+  {file:'images/apr30-transformer-house.jpg',label:'Transformer house'}
+];
+
+const photosApr16=[
+  {file:'images/apr16-block-laying.jpg',label:'Block laying &mdash; back fence'},
+  {file:'images/apr16-fencing-progress.jpg',label:'Fencing progress'},
+  {file:'images/apr16-cement-store-1.jpg',label:'Cement stock &mdash; inner store'},
+  {file:'images/apr16-cement-store-2.jpg',label:'Cement stock &mdash; factory'},
+  {file:'images/apr16-cement-store-3.jpg',label:'Cement stock'},
+  {file:'images/apr16-factory-floor-epoxy.jpg',label:'Factory floor &mdash; epoxy application'},
+  {file:'images/apr16-factory-floor-epoxy2.jpg',label:'Factory floor &mdash; epoxy view 2'},
+  {file:'images/apr16-staff-quarters-layout.jpg',label:'Staff quarters layout plan'},
+  {file:'images/apr16-admin-layout.jpg',label:'Admin quarters layout plan'}
+];
+
+function makeCard(p){
+  const div=document.createElement('div');
+  div.className='photo-item';
+  const img=document.createElement('img');
+  img.src=p.file;
+  img.alt=p.label;
+  img.loading='lazy';
+  img.onerror=function(){
+    div.innerHTML='<div class="photo-fallback"><i class="ti ti-camera" style="font-size:24px;color:#c8a96e;opacity:0.5" aria-hidden="true"></i><span>'+p.label+'</span><span class="photo-filename">'+p.file.replace('images/','')+'</span></div>';
+  };
+  const cap=document.createElement('div');
+  cap.className='photo-caption';
+  cap.innerHTML=p.label;
+  div.appendChild(img);
+  div.appendChild(cap);
+  return div;
+}
+
+function buildPhotos(){
+  const dash=document.getElementById('dash-photos');
+  if(dash&&!dash.hasChildNodes()) photosMay.forEach(p=>dash.appendChild(makeCard(p)));
+  const full=document.getElementById('full-photos-may');
+  if(full&&!full.hasChildNodes()) photosMay.forEach(p=>full.appendChild(makeCard(p)));
+  const a30=document.getElementById('full-photos-apr30');
+  if(a30&&!a30.hasChildNodes()) photosApr30.forEach(p=>a30.appendChild(makeCard(p)));
+  const a16=document.getElementById('full-photos-apr16');
+  if(a16&&!a16.hasChildNodes()) photosApr16.forEach(p=>a16.appendChild(makeCard(p)));
+}
+
+function init(){animateBars();buildPhotos();}
+</script>
+</body>
+</html>
