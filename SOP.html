@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D3320">
+<title>WGNI Farm — SOP Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #0D3320;
+  --forest-mid: #1A5C38;
+  --forest-light: #2E7D4F;
+  --forest-deep: #071A0F;
+  --yellow: #C9B96A;
+  --yellow-light: #DDD3A0;
+  --yellow-dark: #8C7D35;
+  --parchment: #F5F2EC;
+  --sand: #D1CBBB;
+  --stone: #8C8C80;
+  --charcoal: #4A4A4A;
+  --ink: #1C1C1C;
+  --cream: #F9F7F2;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+/* ═══════════════════════════════
+   MOBILE HEADER (top bar)
+═══════════════════════════════ */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--forest);
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: calc(var(--safe-top) + 56px);
+}
+
+.mobile-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #F5F2EC;
+  line-height: 1.1;
+}
+
+.mobile-brand-sub {
+  font-size: 10px;
+  color: rgba(245,242,236,0.45);
+  margin-top: 1px;
+}
+
+.hamburger {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.hamburger span {
+  display: block;
+  width: 20px; height: 2px;
+  background: var(--yellow);
+  border-radius: 2px;
+  transition: all 0.25s;
+}
+
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+/* ═══════════════════════════════
+   DRAWER OVERLAY
+═══════════════════════════════ */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 150;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.drawer-overlay.visible { opacity: 1; }
+
+/* ═══════════════════════════════
+   SIDEBAR (desktop) / DRAWER (mobile)
+═══════════════════════════════ */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 260px;
+  background: var(--forest);
+  display: flex;
+  flex-direction: column;
+  z-index: 160;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+
+.sidebar-brand {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(201,185,106,0.2);
+}
+
+.brand-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--yellow);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #F5F2EC;
+  line-height: 1.2;
+}
+
+.brand-sub {
+  font-size: 11px;
+  color: rgba(245,242,236,0.45);
+  margin-top: 4px;
+}
+
+.nav-section-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(201,185,106,0.6);
+  padding: 20px 24px 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-left: 3px solid transparent;
+  min-height: 52px;
+}
+
+.nav-item:hover, .nav-item:active { background: rgba(255,255,255,0.05); }
+
+.nav-item.active {
+  background: rgba(201,185,106,0.12);
+  border-left-color: var(--yellow);
+}
+
+.nav-icon {
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-icon { background: rgba(201,185,106,0.2); }
+.nav-text { flex: 1; min-width: 0; }
+
+.nav-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(245,242,236,0.85);
+  line-height: 1.3;
+}
+
+.nav-item.active .nav-title { color: var(--yellow-light); }
+
+.nav-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: rgba(245,242,236,0.3);
+}
+
+.nav-item.active .nav-code { color: rgba(201,185,106,0.5); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 24px;
+  padding-bottom: calc(16px + var(--safe-bottom));
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer-badge {
+  font-size: 10px;
+  color: rgba(245,242,236,0.3);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════ */
+.main {
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════
+   TOP BAR (desktop)
+═══════════════════════════════ */
+.topbar {
+  background: var(--parchment);
+  border-bottom: 1px solid var(--sand);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--stone);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.breadcrumb-sep { color: var(--sand); flex-shrink: 0; }
+.breadcrumb-current { color: var(--forest); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.meta-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  background: var(--forest);
+  color: var(--yellow-light);
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.meta-pill.green {
+  background: rgba(13,51,32,0.08);
+  color: var(--forest-mid);
+  border: 1px solid rgba(13,51,32,0.15);
+}
+
+/* ═══════════════════════════════
+   BOTTOM NAV (mobile only)
+═══════════════════════════════ */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--forest);
+  border-top: 1px solid rgba(201,185,106,0.15);
+  padding-bottom: var(--safe-bottom);
+}
+
+.bottom-nav-inner {
+  display: flex;
+  align-items: stretch;
+}
+
+.bnav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  min-height: 56px;
+  border-top: 2px solid transparent;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bnav-item.active { border-top-color: var(--yellow); }
+
+.bnav-icon { font-size: 18px; line-height: 1; margin-bottom: 3px; }
+
+.bnav-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(245,242,236,0.4);
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.bnav-item.active .bnav-label { color: var(--yellow-light); }
+
+/* ═══════════════════════════════
+   PAGE HERO
+═══════════════════════════════ */
+.page-hero {
+  background: var(--forest);
+  padding: 48px 40px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  right: -60px; top: -60px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(201,185,106,0.06);
+  pointer-events: none;
+}
+
+.hero-sop-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--yellow);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px;
+  font-weight: 600;
+  color: #F5F2EC;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
+.hero-desc {
+  font-size: 14px;
+  color: rgba(245,242,236,0.5);
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+.hero-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.hero-tag {
+  font-size: 10.5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(201,185,106,0.25);
+  color: rgba(201,185,106,0.7);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════
+   CONTENT
+═══════════════════════════════ */
+.content { padding: 28px 40px 60px; }
+
+/* ═══════════════════════════════
+   HOME STATS
+═══════════════════════════════ */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.stat-sub { font-size: 11px; color: var(--stone); margin-top: 2px; }
+
+/* ═══════════════════════════════
+   SOP CARD GRID
+═══════════════════════════════ */
+.sop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.sop-card {
+  background: white;
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.sop-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--forest);
+  border-radius: 12px 0 0 12px;
+}
+
+.sop-card:active { transform: scale(0.98); border-color: var(--forest-mid); }
+
+.card-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: rgba(13,51,32,0.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.card-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--yellow-dark);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--forest);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.card-desc {
+  font-size: 12.5px;
+  color: var(--stone);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-version {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--sand);
+}
+
+.card-arrow {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--yellow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════
+   CONFIDENTIAL BANNER
+═══════════════════════════════ */
+.conf-banner {
+  background: rgba(140,125,53,0.08);
+  border: 1px solid rgba(140,125,53,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 11.5px;
+  color: var(--yellow-dark);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════
+   BACK BUTTON
+═══════════════════════════════ */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--stone);
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  min-height: 44px;
+}
+
+.back-btn:active { color: var(--forest); }
+
+/* ═══════════════════════════════
+   ACCORDION
+═══════════════════════════════ */
+.accordion {
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: white;
+}
+
+.accordion-header {
+  padding: 15px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  background: white;
+  transition: background 0.15s;
+  user-select: none;
+  min-height: 56px;
+}
+
+.accordion-header:active { background: var(--cream); }
+
+.accordion-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--yellow-dark);
+  min-width: 36px;
+  background: rgba(201,185,106,0.12);
+  padding: 3px 6px;
+  border-radius: 4px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.accordion-title {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.accordion-chevron {
+  color: var(--stone);
+  font-size: 11px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.accordion.open .accordion-chevron { transform: rotate(180deg); }
+
+.accordion-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--parchment);
+}
+
+.accordion.open .accordion-body { display: block; }
+
+/* ═══════════════════════════════
+   CONTENT BLOCKS
+═══════════════════════════════ */
+.prose {
+  font-size: 13.5px;
+  color: var(--charcoal);
+  line-height: 1.8;
+  margin-top: 12px;
+}
+
+.prose p { margin-bottom: 8px; }
+
+.rule-list { list-style: none; margin-top: 12px; }
+
+.rule-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--charcoal);
+  line-height: 1.7;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--parchment);
+}
+
+.rule-list li:last-child { border-bottom: none; }
+
+.rule-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--forest-mid);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+/* Tables — scrollable on mobile */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--sand);
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 320px;
+}
+
+.info-table th {
+  background: var(--forest);
+  color: var(--yellow-light);
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.info-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--parchment);
+  color: var(--charcoal);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.info-table tr:last-child td { border-bottom: none; }
+.info-table tr:nth-child(even) td { background: var(--cream); }
+
+.alert-box {
+  background: rgba(13,51,32,0.06);
+  border-left: 3px solid var(--forest-mid);
+  padding: 12px 14px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--forest);
+  line-height: 1.7;
+}
+
+.warn-box {
+  background: rgba(201,185,106,0.1);
+  border-left: 3px solid var(--yellow-dark);
+  padding: 12px 14px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--yellow-dark);
+  line-height: 1.7;
+}
+
+.step-list {
+  counter-reset: step;
+  list-style: none;
+  margin-top: 12px;
+}
+
+.step-list li {
+  counter-increment: step;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 9px 0;
+  font-size: 13px;
+  color: var(--charcoal);
+  line-height: 1.7;
+  border-bottom: 1px solid var(--parchment);
+}
+
+.step-list li:last-child { border-bottom: none; }
+
+.step-list li::before {
+  content: counter(step);
+  min-width: 24px; height: 24px;
+  background: var(--forest);
+  color: var(--yellow-light);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════
+   PAGE TRANSITIONS
+═══════════════════════════════ */
+.page { display: none; }
+.page.active { display: block; animation: fadeUp 0.2s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════
+   SCROLLBAR (desktop)
+═══════════════════════════════ */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ═══════════════════════════════
+   RESPONSIVE — TABLET & MOBILE
+═══════════════════════════════ */
+@media (max-width: 768px) {
+  /* Show mobile header, hide desktop topbar */
+  .mobile-header { display: flex; }
+  .topbar { display: none; }
+
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar {
+    transform: translateX(-100%);
+    top: 0;
+    padding-top: calc(var(--safe-top) + 0px);
+    width: 280px;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .drawer-overlay { display: block; pointer-events: none; }
+  .drawer-overlay.visible { pointer-events: all; }
+
+  /* Main fills full width, with padding for header + bottom nav */
+  .main {
+    margin-left: 0;
+    padding-top: calc(var(--safe-top) + 56px);
+    padding-bottom: calc(56px + var(--safe-bottom));
+  }
+
+  /* Show bottom nav */
+  .bottom-nav { display: block; }
+
+  /* Hero adjustments */
+  .page-hero { padding: 28px 20px 24px; }
+  .hero-title { font-size: 26px; }
+  .hero-desc { font-size: 13px; }
+  .hero-sop-code { font-size: 9px; }
+
+  /* Content padding */
+  .content { padding: 20px 16px 24px; }
+
+  /* Stats — 2×2 on mobile */
+  .stat-row { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 22px; }
+
+  /* SOP cards — single column */
+  .sop-grid { grid-template-columns: 1fr; gap: 12px; }
+  .sop-card { padding: 18px; }
+
+  /* Accordion */
+  .accordion-header { padding: 14px; min-height: 52px; }
+  .accordion-body { padding: 0 14px 14px; }
+  .accordion-title { font-size: 13px; }
+
+  /* Back button */
+  .back-btn { font-size: 13px; }
+
+  /* Table scroll hint */
+  .table-wrap::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 24px;
+    background: linear-gradient(to right, transparent, rgba(249,247,242,0.8));
+    pointer-events: none;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .table-wrap { position: relative; }
+}
+
+@media (max-width: 400px) {
+  .hero-title { font-size: 22px; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .stat-value { font-size: 20px; }
+  .info-table { font-size: 11.5px; }
+  .info-table th, .info-table td { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE HEADER -->
+<header class="mobile-header" id="mobileHeader">
+  <div class="mobile-brand">
+    <div class="mobile-brand-name">WGNI Farm</div>
+    <div class="mobile-brand-sub">SOP Portal</div>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleDrawer()">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- SIDEBAR / DRAWER -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">Internal Portal</div>
+    <div class="brand-name">WGNI Farm</div>
+    <div class="brand-sub">Standard Operating Procedures</div>
+  </div>
+
+  <div class="nav-section-label">Overview</div>
+  <div class="nav-item active" onclick="showPage('home',this)">
+    <div class="nav-icon">⌂</div>
+    <div class="nav-text">
+      <div class="nav-title">SOP Library</div>
+      <div class="nav-code">Home</div>
+    </div>
+  </div>
+
+  <div class="nav-section-label">Operations</div>
+
+  <div class="nav-item" onclick="showPage('general',this)">
+    <div class="nav-icon">📋</div>
+    <div class="nav-text">
+      <div class="nav-title">General Farm Operations</div>
+      <div class="nav-code">WGNI-GOM-001</div>
+    </div>
+  </div>
+
+  <div class="nav-item" onclick="showPage('greenhouse',this)">
+    <div class="nav-icon">🌿</div>
+    <div class="nav-text">
+      <div class="nav-title">Greenhouse Operations</div>
+      <div class="nav-code">WGF-GH-OPS-001</div>
+    </div>
+  </div>
+
+  <div class="nav-item" onclick="showPage('water',this)">
+    <div class="nav-icon">💧</div>
+    <div class="nav-text">
+      <div class="nav-title">Water Management</div>
+      <div class="nav-code">WGF-OPS-WTR-001</div>
+    </div>
+  </div>
+
+  <div class="nav-item" onclick="showPage('openfield',this)">
+    <div class="nav-icon">🌾</div>
+    <div class="nav-text">
+      <div class="nav-title">Open Field & Orchard</div>
+      <div class="nav-code">WGF-OFO-001</div>
+    </div>
+  </div>
+
+  <div class="nav-item" onclick="showPage('poultry',this)">
+    <div class="nav-icon">🐓</div>
+    <div class="nav-text">
+      <div class="nav-title">Poultry Operations</div>
+      <div class="nav-code">WGF-PLT-OPS-001</div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="footer-badge">WGNI Farm, Kobape, Abeokuta<br>Version 1.0 · April 2026 · Confidential</div>
+  </div>
+</nav>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <div class="bnav-item active" id="bnav-home" onclick="showPage('home',document.querySelector('.nav-item'))">
+      <div class="bnav-icon">⌂</div>
+      <div class="bnav-label">Library</div>
+    </div>
+    <div class="bnav-item" id="bnav-general" onclick="showPage('general',document.querySelectorAll('.nav-item')[1])">
+      <div class="bnav-icon">📋</div>
+      <div class="bnav-label">General</div>
+    </div>
+    <div class="bnav-item" id="bnav-greenhouse" onclick="showPage('greenhouse',document.querySelectorAll('.nav-item')[2])">
+      <div class="bnav-icon">🌿</div>
+      <div class="bnav-label">GH</div>
+    </div>
+    <div class="bnav-item" id="bnav-water" onclick="showPage('water',document.querySelectorAll('.nav-item')[3])">
+      <div class="bnav-icon">💧</div>
+      <div class="bnav-label">Water</div>
+    </div>
+    <div class="bnav-item" id="bnav-openfield" onclick="showPage('openfield',document.querySelectorAll('.nav-item')[4])">
+      <div class="bnav-icon">🌾</div>
+      <div class="bnav-label">Field</div>
+    </div>
+    <div class="bnav-item" id="bnav-poultry" onclick="showPage('poultry',document.querySelectorAll('.nav-item')[5])">
+      <div class="bnav-icon">🐓</div>
+      <div class="bnav-label">Poultry</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DESKTOP TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb" id="breadcrumb">
+      <span>WGNI Farm</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">SOP Library</span>
+    </div>
+    <div class="doc-meta">
+      <span class="meta-pill green">● Active</span>
+      <span class="meta-pill">Apr 2026</span>
+    </div>
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <div id="page-home" class="page active">
+    <div class="page-hero">
+      <div class="hero-sop-code">WGNI Farm · Abeokuta, Nigeria · Internal Use Only</div>
+      <div class="hero-title">SOP Library</div>
+      <div class="hero-desc">The complete operational framework governing all production units, personnel, facilities, and compliance standards at WGNI Farm.</div>
+      <div class="hero-tags">
+        <span class="hero-tag">Greenhouse</span>
+        <span class="hero-tag">Water</span>
+        <span class="hero-tag">Open Field</span>
+        <span class="hero-tag">Poultry</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Total SOPs</div>
+          <div class="stat-value">5</div>
+          <div class="stat-sub">All active · v1.0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Kits</div>
+          <div class="stat-value">2</div>
+          <div class="stat-sub">Kit 1 · Kit 7</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Plant Stands</div>
+          <div class="stat-value">1,850</div>
+          <div class="stat-sub">Bell pepper</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Review</div>
+          <div class="stat-value" style="font-size:18px;">Oct '26</div>
+          <div class="stat-sub">All documents</div>
+        </div>
+      </div>
+
+      <div class="conf-banner">⚠ Confidential — authorised WGNI Farm personnel only. Do not share outside the organisation without CEO approval.</div>
+
+      <div class="sop-grid">
+        <div class="sop-card" data-page="general">
+          <div class="card-icon">📋</div>
+          <div class="card-code">WGNI-GOM-001</div>
+          <div class="card-title">General Farm Operations</div>
+          <div class="card-desc">Facility management, personnel hierarchy, security, procurement, store management, weed control, and contractor oversight.</div>
+          <div class="card-footer"><span class="card-version">Ver 1.0 · April 2026</span><div class="card-arrow">→</div></div>
+        </div>
+        <div class="sop-card" data-page="greenhouse">
+          <div class="card-icon">🌿</div>
+          <div class="card-code">WGF-GH-OPS-001</div>
+          <div class="card-title">Greenhouse Operations</div>
+          <div class="card-desc">Bell pepper production — access protocols, fertigation, crop monitoring, pest management, and harvesting.</div>
+          <div class="card-footer"><span class="card-version">Ver 1.0 · April 2026</span><div class="card-arrow">→</div></div>
+        </div>
+        <div class="sop-card" data-page="water">
+          <div class="card-icon">💧</div>
+          <div class="card-code">WGF-OPS-WTR-001</div>
+          <div class="card-title">Water Management</div>
+          <div class="card-desc">Full water chain from borehole to end use — greenhouse irrigation, block moulding, poultry, and all site operations. 44,000L system.</div>
+          <div class="card-footer"><span class="card-version">Ver 1.0 · April 2026</span><div class="card-arrow">→</div></div>
+        </div>
+        <div class="sop-card" data-page="openfield">
+          <div class="card-icon">🌾</div>
+          <div class="card-code">WGF-OFO-001</div>
+          <div class="card-title">Open Field & Orchard</div>
+          <div class="card-desc">Seed beds 1–3 (sweet corn, tomatoes) and orchard (mango, orange) — bed preparation, irrigation, crop monitoring, and harvest.</div>
+          <div class="card-footer"><span class="card-version">Ver 1.0 · April 2026</span><div class="card-arrow">→</div></div>
+        </div>
+        <div class="sop-card" data-page="poultry">
+          <div class="card-icon">🐓</div>
+          <div class="card-code">WGF-PLT-OPS-001</div>
+          <div class="card-title">Poultry Operations</div>
+          <div class="card-desc">Broiler and turkey production — biosecurity, daily routines, feed guide, weight monitoring, slaughter protocols, and sanction grid.</div>
+          <div class="card-footer"><span class="card-version">Ver 1.0 · April 2026</span><div class="card-arrow">→</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GENERAL FARM OPERATIONS ══ -->
+  <div id="page-general" class="page">
+    <div class="page-hero">
+      <div class="hero-sop-code">WGNI-GOM-001 · Ver 1.0 · Approved: EA · April 2026</div>
+      <div class="hero-title">General Farm Operations</div>
+      <div class="hero-desc">Governing framework for the day-to-day management of WGNI Farm across all staff, contractors, facilities, and compliance requirements.</div>
+      <div class="hero-tags"><span class="hero-tag">All Staff</span><span class="hero-tag">Contractors</span><span class="hero-tag">Security</span><span class="hero-tag">Procurement</span></div>
+    </div>
+    <div class="content">
+      <button class="back-btn" onclick="showPage('home',document.querySelector('.nav-item'))">← Back to Library</button>
+
+      <div class="accordion open">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 1</span><span class="accordion-title">Purpose & Scope</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>This manual establishes the standard operating framework for the day-to-day management of WGNI Farm. It governs facility management, cleanliness, weed control, security, personnel conduct, store management, procurement, and contractor oversight across all farm areas.</p><p>Applies to all permanent staff, casual workers, security personnel, and contractors — including weekends and after hours.</p></div>
+          <div class="alert-box">Scope: greenhouse facilities, open field, fish pond, poultry area, security house, staff quarters, store, factory facility, and all access roads within the farm perimeter.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 4</span><span class="accordion-title">Organisational Structure & Hierarchy</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>The Farm Manager and Farm Supervisor are parallel positions — neither is superior to the other.</p></div>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Role</th><th>Reports To</th><th>Primary Authority</th></tr>
+            <tr><td>EA</td><td>CEO / Chairman</td><td>Independent operational oversight</td></tr>
+            <tr><td>Farm Manager</td><td>EA / CEO</td><td>All crop, livestock, fish & agronomic matters</td></tr>
+            <tr><td>Farm Supervisor</td><td>CEO (direct)</td><td>Store, inventory, procurement, contractors</td></tr>
+            <tr><td>Fish Farm Worker</td><td>Farm Manager</td><td>All fishpond daily operations</td></tr>
+            <tr><td>Poultry Attendant</td><td>Farm Manager</td><td>Daily poultry operations</td></tr>
+            <tr><td>Security (×3)</td><td>Farm Manager</td><td>Gate, perimeter, visitor access</td></tr>
+          </table></div>
+          <div class="warn-box">⚠ The Farm Manager and Farm Supervisor must never both be absent simultaneously. Any planned absence must be communicated to the EA in advance.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 10</span><span class="accordion-title">Security Management</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>At least one security officer must be at the main gate at all times — day, night, weekdays, and weekends.</li>
+            <li><div class="rule-dot"></div>When one officer steps out, another must assume gate duty before departure.</li>
+            <li><div class="rule-dot"></div>Every officer maintains a step-out register: date, time out, destination, reason, time back, signature.</li>
+            <li><div class="rule-dot"></div>All visitors must sign the visitor register before entering — no exceptions regardless of identity.</li>
+            <li><div class="rule-dot"></div>Delivery vehicles must be logged: registration, driver name, purpose, time in/out.</li>
+          </ul>
+          <div class="table-wrap" style="margin-top:14px"><table class="info-table">
+            <tr><th>Restricted Zone</th><th>Permission From</th></tr>
+            <tr><td>Store and inventory room</td><td>Farm Supervisor</td></tr>
+            <tr><td>Greenhouse kits (active)</td><td>Farm Manager</td></tr>
+            <tr><td>Fish pond area</td><td>Farm Manager</td></tr>
+            <tr><td>Poultry area</td><td>Farm Manager</td></tr>
+            <tr><td>Factory facility</td><td>Farm Supervisor</td></tr>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 12</span><span class="accordion-title">Procurement & Approval Thresholds</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Amount</th><th>Approving Authority</th></tr>
+            <tr><td>Below ₦50,000</td><td>Farm Manager</td></tr>
+            <tr><td>₦50,000 – ₦200,000</td><td>EA</td></tr>
+            <tr><td>Above ₦200,000</td><td>CEO</td></tr>
+          </table></div>
+          <div class="warn-box">⚠ Splitting a purchase to avoid a higher approval tier is strictly prohibited — constitutes a disciplinary offence.</div>
+          <div class="prose"><p>All receipts must be submitted to the EA via Notion or the WhatsApp Group immediately after purchase. A receipt is required for every transaction.</p></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 8–9</span><span class="accordion-title">Cleanliness, Sanitation & Weed Management</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="alert-box">Every Saturday: whole-farm deep clean mandatory for all residents and farm workers. Farm Manager supervises and confirms completion.</div>
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Chemical herbicides must never be applied inside greenhouse kits, over fish ponds, or directly over open field crops.</li>
+            <li><div class="rule-dot"></div>Minimum 5 m from any greenhouse kit wall before spraying begins.</li>
+            <li><div class="rule-dot"></div>Minimum 10 m from any fish pond edge.</li>
+            <li><div class="rule-dot"></div>Full PPE required at all times during chemical application.</li>
+            <li><div class="rule-dot"></div>No cooking inside any building. Outdoor cooking only — minimum 5 m from any building or flammable material.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GREENHOUSE ══ -->
+  <div id="page-greenhouse" class="page">
+    <div class="page-hero">
+      <div class="hero-sop-code">WGF-GH-OPS-001 · Ver 1.0 · CEO Authorised · April 2026</div>
+      <div class="hero-title">Greenhouse Operations</div>
+      <div class="hero-desc">Bell pepper production across all active greenhouse kits. Access, fertigation, irrigation, crop monitoring, and pest management.</div>
+      <div class="hero-tags"><span class="hero-tag">Kit 1 — 500 sqm · 1,200 stands</span><span class="hero-tag">Kit 7 — 250 sqm · 600 stands</span></div>
+    </div>
+    <div class="content">
+      <button class="back-btn" onclick="showPage('home',document.querySelector('.nav-item'))">← Back to Library</button>
+
+      <div class="accordion open">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 1</span><span class="accordion-title">Access & Security Protocols</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>Only three personnel may enter any active greenhouse kit: the assigned Greenhouse Worker, the Agronomist, and the Farm Manager. No other person — including visitors, buyers, or contractors — may enter under any circumstance.</p></div>
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Remove or cover external footwear at the entrance. Dedicated greenhouse footwear for each kit must be worn inside at all times.</li>
+            <li><div class="rule-dot"></div>Wash hands with soap and water before touching any plant, bed, irrigation line, or tool.</li>
+            <li><div class="rule-dot"></div>Close and secure the door immediately on entry. It must remain closed at all times while anyone is inside.</li>
+            <li><div class="rule-dot"></div>When moving between kits — wash hands and clean footwear before entering the next kit.</li>
+            <li><div class="rule-dot"></div>Tools and equipment assigned to one kit must not be transferred without cleaning and disinfection using Hypo solution.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 2</span><span class="accordion-title">Environmental & Perimeter Conditions</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Minimum 2-metre clearance zone around every active greenhouse kit at all times.</li>
+            <li><div class="rule-dot"></div>Grass must not exceed 5 cm within the clearance zone.</li>
+            <li><div class="rule-dot"></div>No standing water, organic debris, or stored materials within the 2-metre zone.</li>
+            <li><div class="rule-dot"></div>Gravelled drainage channel at the base of the exterior wall must remain clear at all times.</li>
+            <li><div class="rule-dot"></div>Herbicides must never be used inside an active greenhouse.</li>
+          </ul>
+          <div class="alert-box">Mulch film damage — any tear, lifted section, or widened planting hole must be reported to the Agronomist on the day it is observed.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 3</span><span class="accordion-title">Water Supply & Pumping</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>Water is transferred from the main storage tank to the greenhouse header tank using a 2HP mud pump. From the header tank, water flows through drip irrigation lines during each fertigation run.</p></div>
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Check header tank level every morning before irrigation and every evening before the evening run.</li>
+            <li><div class="rule-dot"></div>Pump when header tank drops below half capacity.</li>
+            <li><div class="rule-dot"></div>Never allow the header tank to run completely empty — air enters drip lines causing uneven delivery.</li>
+            <li><div class="rule-dot"></div>A running pump must never be left unattended.</li>
+          </ul>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Fault</th><th>Immediate Action</th></tr>
+            <tr><td>Abnormal sounds (rattling, grinding)</td><td>Switch off immediately. Report to Farm Manager.</td></tr>
+            <tr><td>Water leaking from delivery pipe</td><td>Switch off. Report to Farm Manager.</td></tr>
+            <tr><td>Pump running but tank not rising</td><td>Switch off immediately. Report to Farm Manager.</td></tr>
+            <tr><td>Main storage tank empty</td><td>Do not start. Report to Farm Manager immediately.</td></tr>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 4</span><span class="accordion-title">Fertigation & Irrigation Schedule</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="alert-box">Standard schedule: Cycle 1 at 6:30 AM · Cycle 2 at 4:30 PM. Avoid irrigating between 11:30 AM and 3:30 PM during hot dry periods.</div>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Growth Stage</th><th>L/Stand/Day</th><th>Kit 1 Daily</th><th>Kit 7 Daily</th><th>Valve Time</th></tr>
+            <tr><td>Transplant (current)</td><td>0.5L</td><td>600L</td><td>300L</td><td>7.5 min</td></tr>
+            <tr><td>Early vegetative</td><td>0.75L</td><td>900L</td><td>450L</td><td>11.25 min</td></tr>
+            <tr><td>Active vegetative</td><td>1.0L</td><td>1,200L</td><td>600L</td><td>15 min</td></tr>
+            <tr><td>Flowering/early fruiting</td><td>1.25L</td><td>1,500L</td><td>750L</td><td>18.75 min</td></tr>
+            <tr><td>Full fruiting</td><td>1.5L</td><td>1,800L</td><td>900L</td><td>22.5 min</td></tr>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 5</span><span class="accordion-title">Crop Monitoring & Observation</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>A full observation walkthrough must be conducted at every morning and evening session. Walk slowly through every row from end to end.</p></div>
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Check every plant for wilting, colour change, drooping, or unusual markings.</li>
+            <li><div class="rule-dot"></div>Inspect drip emitters along each row — all must be dripping. Report blocked emitters before the next run.</li>
+            <li><div class="rule-dot"></div>Check mulch film for tears, lifting, or widened holes.</li>
+            <li><div class="rule-dot"></div>Inspect upper and lower leaf surfaces of any plant showing discolouration.</li>
+            <li><div class="rule-dot"></div>Any plant showing disease symptoms must be flagged to the Agronomist same day. Do not treat without instruction.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WATER MANAGEMENT ══ -->
+  <div id="page-water" class="page">
+    <div class="page-hero">
+      <div class="hero-sop-code">WGF-OPS-WTR-001 · Rev 1.0 · April 2026</div>
+      <div class="hero-title">Water Management</div>
+      <div class="hero-desc">Full water chain governance from borehole to end use across greenhouse irrigation, block moulding, poultry, fishpond, and all site operations.</div>
+      <div class="hero-tags"><span class="hero-tag">System: 44,000L</span><span class="hero-tag">Base: 30,000L</span><span class="hero-tag">Overhead: 14,000L</span></div>
+    </div>
+    <div class="content">
+      <button class="back-btn" onclick="showPage('home',document.querySelector('.nav-item'))">← Back to Library</button>
+
+      <div class="accordion open">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC A</span><span class="accordion-title">System Overview & Water Chain</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="alert-box">Water chain: BOREHOLE → INTAKE PUMPS → 6×5,000L BASE TANKS → DUAL FILTRATION → MAIN TOWER (10,000L) → EN-ROUTE CHANNELS → STAND 1 & 2 STOREX (4,000L) → DRIP IRRIGATION → CROP STANDS</div>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Component</th><th>Specification</th><th>Qty</th></tr>
+            <tr><td>Borehole</td><td>Primary water source</td><td>1</td></tr>
+            <tr><td>Ecoflow solar pump</td><td>Primary intake — solar + AC generator backup</td><td>1</td></tr>
+            <tr><td>Electric surface pump</td><td>Secondary/backup — AC generator powered</td><td>1</td></tr>
+            <tr><td>Base storage tanks</td><td>5,000L each = 30,000L total</td><td>6</td></tr>
+            <tr><td>Main water tower (Geepee)</td><td>4 × 2,500L = 10,000L total</td><td>1</td></tr>
+            <tr><td>Stand 1 (Storex)</td><td>2 × 1,000L — feeds Kit 1, 2, 3, 6</td><td>1</td></tr>
+            <tr><td>Stand 2 (Storex)</td><td>2 × 1,000L — feeds Kit 4, 5, 7</td><td>1</td></tr>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC B</span><span class="accordion-title">Base Tank Management</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>The Ecoflow hybrid solar pump is the primary method for filling base tanks. It operates automatically from 8:00 AM to 5:30 PM, switching between solar and generator AC backup as needed.</p></div>
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Never allow combined base tank storage to drop below 5,000L.</li>
+            <li><div class="rule-dot"></div>Visually assess all 6 tanks every morning before any pumping or site activity begins.</li>
+            <li><div class="rule-dot"></div>Allow Ecoflow solar to run first. Use electric pump only when solar is insufficient.</li>
+            <li><div class="rule-dot"></div>If base tanks approach 5,000L — pause ALL non-greenhouse draws immediately.</li>
+            <li><div class="rule-dot"></div>Cover all base tank inlets when not in use.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC D</span><span class="accordion-title">Pumping Modes & Fuel Reference</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Mode</th><th>Volume</th><th>Time</th><th>Petrol</th><th>Cost</th></tr>
+            <tr><td>Mode 1 — Full tower</td><td>10,000L</td><td>~3 hrs</td><td>~1.9L</td><td>~₦2,470</td></tr>
+            <tr><td>Mode 2 — Stand 1</td><td>2,000L</td><td>~40 min</td><td>~0.38L</td><td>~₦494</td></tr>
+            <tr><td>Mode 3 — Stand 2</td><td>2,000L</td><td>~40 min</td><td>~0.38L</td><td>~₦494</td></tr>
+            <tr><td>Full system fill</td><td>14,000L</td><td>~4 hrs</td><td>~2.6L</td><td>~₦3,380</td></tr>
+          </table></div>
+          <div class="warn-box">⚠ Budget generator fuel and block moulding petrol separately. Never mix fuel containers between equipment.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC I</span><span class="accordion-title">Water Priority Hierarchy</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Priority</th><th>Activity</th><th>Reason</th></tr>
+            <tr><td>1 — Highest</td><td>Greenhouse irrigation</td><td>Crop survival — non-negotiable</td></tr>
+            <tr><td>2</td><td>Poultry & fishpond</td><td>Animal welfare requires consistency</td></tr>
+            <tr><td>3</td><td>Block moulding mixing</td><td>Can pause without permanent loss</td></tr>
+            <tr><td>4 — Lowest</td><td>Block moulding curing</td><td>Can defer 24–48 hrs if needed</td></tr>
+          </table></div>
+          <ul class="rule-list" style="margin-top:12px">
+            <li><div class="rule-dot"></div>Never run drip lines while it is actively raining.</li>
+            <li><div class="rule-dot"></div>Reduce irrigation by 30–40% on overcast or cool days.</li>
+            <li><div class="rule-dot"></div>Inspect drip tape weekly for blocked or burst emitters.</li>
+            <li><div class="rule-dot"></div>Do not allow any overhead tank to overflow.</li>
+            <li><div class="rule-dot"></div>Never pump from base tanks below the 5,000L safety threshold.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC K</span><span class="accordion-title">Escalation & Fault Reporting</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="warn-box">⚠ Stop operations and notify the Farm Manager immediately for any of the following faults.</div>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Fault</th><th>Immediate Action</th></tr>
+            <tr><td>No water flow after 2 priming attempts</td><td>Stop pump. Do not attempt third start. Report.</td></tr>
+            <tr><td>Ecoflow controller fault code</td><td>Do not reset without Farm Manager guidance.</td></tr>
+            <tr><td>Base tanks below 5,000L combined</td><td>Suspend all non-greenhouse draws. Prioritise refill.</td></tr>
+            <tr><td>Visible leak at pipe, vessel, or tank</td><td>Stop pumping. Isolate section. Report.</td></tr>
+            <tr><td>Water discolouration persists after backwash</td><td>Do not pump to greenhouse. Report immediately.</td></tr>
+            <tr><td>Knocking or rattling sounds from engine</td><td>Stop immediately. Do not restart. Report.</td></tr>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ OPEN FIELD & ORCHARD ══ -->
+  <div id="page-openfield" class="page">
+    <div class="page-hero">
+      <div class="hero-sop-code">WGF-OFO-001 · Ver 1.0 · CEO Authorised · April 2026</div>
+      <div class="hero-title">Open Field & Orchard</div>
+      <div class="hero-desc">Seed beds 1–3 and orchard — bed preparation, irrigation, crop monitoring, chemical application, and harvest standards.</div>
+      <div class="hero-tags"><span class="hero-tag">Beds 1–3</span><span class="hero-tag">Sweet Corn · Tomatoes</span><span class="hero-tag">Mango · Orange</span></div>
+    </div>
+    <div class="content">
+      <button class="back-btn" onclick="showPage('home',document.querySelector('.nav-item'))">← Back to Library</button>
+
+      <div class="accordion open">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 1</span><span class="accordion-title">Access & Security</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Assigned field workers, the Agronomist, and the Farm Manager are authorised to access seed beds during working hours.</li>
+            <li><div class="rule-dot"></div>Visitors may observe from the field perimeter only. They must not enter active beds without Farm Manager authorisation.</li>
+            <li><div class="rule-dot"></div>No vehicle may enter the orchard without Farm Manager authorisation — causes soil compaction and root damage.</li>
+            <li><div class="rule-dot"></div>No livestock may access the orchard area at any time.</li>
+            <li><div class="rule-dot"></div>All tools must be returned to the store at the end of every working day. No tool is left in the field overnight.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 2</span><span class="accordion-title">Bed Preparation Standards</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Standard</th><th>Specification</th></tr>
+            <tr><td>Bed width</td><td>90–100 cm across the top</td></tr>
+            <tr><td>Bed height</td><td>15–20 cm above ground level</td></tr>
+            <tr><td>Walkway between beds</td><td>Minimum 50 cm</td></tr>
+            <tr><td>Soil tilling depth</td><td>At least 25–30 cm</td></tr>
+            <tr><td>Drip line</td><td>One per bed, centre. Tested before mulch film applied.</td></tr>
+            <tr><td>Mulch film</td><td>Black polythene — pulled taut, anchored both sides. Not reused without Agronomist approval.</td></tr>
+          </table></div>
+          <div class="warn-box">⚠ Do not lay mulch film over an untested drip line.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 3</span><span class="accordion-title">Irrigation Management</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Typical frequency: once or twice daily during establishment and active growth — in absence of rainfall.</li>
+            <li><div class="rule-dot"></div>Do not irrigate if beds have received adequate natural rainfall. Check soil moisture under mulch film first.</li>
+            <li><div class="rule-dot"></div>Walk the full length of every active bed and confirm all drip lines are intact before every run.</li>
+            <li><div class="rule-dot"></div>Do not leave the field during an active irrigation run.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 6</span><span class="accordion-title">Orchard Management</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Base circle around each tree must be weed-free and mulched at all times.</li>
+            <li><div class="rule-dot"></div>Inter-row grass must remain below 15 cm. Manual cutting preferred near trees.</li>
+            <li><div class="rule-dot"></div>Graft union must always remain above the soil surface — never bury during mulching.</li>
+            <li><div class="rule-dot"></div>Formative pruning in first 3 years is the Agronomist's decision only.</li>
+            <li><div class="rule-dot"></div>Boundary markers must be inspected and confirmed intact during every Saturday inspection.</li>
+          </ul>
+          <div class="alert-box">Any tree showing pest or disease signs must be flagged to the Agronomist on the day of observation. No chemical application without Agronomist authorisation.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 7</span><span class="accordion-title">Forms Reference</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Form</th><th>Purpose</th><th>When</th></tr>
+            <tr><td>Form A</td><td>Weekly daily entry — irrigation, pests, mulch, debris</td><td>Daily AM & PM</td></tr>
+            <tr><td>Form B</td><td>Fertigation and nutrient log</td><td>Per application</td></tr>
+            <tr><td>Form C</td><td>Weekly cleaning & inspection sign-off</td><td>Every Saturday</td></tr>
+            <tr><td>Form D</td><td>Chemical & foliar application record</td><td>Per application</td></tr>
+            <tr><td>Form E</td><td>Harvest record — grade, quantity, destination</td><td>Per harvest</td></tr>
+            <tr><td>Form F</td><td>Orchard maintenance & observation log</td><td>Weekly</td></tr>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ POULTRY ══ -->
+  <div id="page-poultry" class="page">
+    <div class="page-hero">
+      <div class="hero-sop-code">WGF-PLT-OPS-001 · Ver 1.0 · CEO Authorised · April 2026</div>
+      <div class="hero-title">Poultry Operations</div>
+      <div class="hero-desc">Broiler and turkey production — biosecurity, daily routines, feed guide, weight monitoring, slaughter protocols, and sanction grid.</div>
+      <div class="hero-tags"><span class="hero-tag">Broilers — 8 weeks</span><span class="hero-tag">Turkey — 12 weeks</span></div>
+    </div>
+    <div class="content">
+      <button class="back-btn" onclick="showPage('home',document.querySelector('.nav-item'))">← Back to Library</button>
+
+      <div class="accordion open">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 1</span><span class="accordion-title">Biosecurity & Access</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="warn-box">⚠ Only the assigned poultry worker and the Farm Manager may enter the poultry house. No exceptions — including management, visitors, and family members.</div>
+          <ul class="rule-list">
+            <li><div class="rule-dot"></div>Padlock must be locked every time the worker steps out, even briefly.</li>
+            <li><div class="rule-dot"></div>A bucket of sodium hypochlorite solution at the entrance of every pen at all times. Both feet must be dipped fully before every entry.</li>
+            <li><div class="rule-dot"></div>Solution: 50–75ml Hypo in 10–15 litres clean water. Replace every 2 days or when visibly dirty.</li>
+            <li><div class="rule-dot"></div>Each pen has dedicated boots. Pen A boots stay at Pen A — they do not cross. External footwear is forbidden inside any pen.</li>
+            <li><div class="rule-dot"></div>Entry sequence (multiple pens): young birds first, then older. Healthy pen first, then suspect or isolation. Never reverse.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 2–4</span><span class="accordion-title">Daily Routines: Morning · Midday · Evening</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p><strong>Morning — 7:00 AM</strong></p></div>
+          <ol class="step-list">
+            <li>Arrive. Put on pen boots. Dip boots in disinfectant bucket. Wash hands.</li>
+            <li>Conduct full Morning Observation Walkthrough.</li>
+            <li>Remove any dead birds immediately with gloves. Report every death to Farm Manager before 8:00 AM.</li>
+            <li>Empty, rinse, and refill all drinkers with clean fresh water.</li>
+            <li>Inspect feed before adding — smell it, check texture, look for mould. No feed enters without passing this check.</li>
+            <li>Give morning feed. Check ventilation. Fill in Form A. Step out. Lock padlock.</li>
+          </ol>
+          <div class="prose" style="margin-top:14px"><p><strong>Midday Heat Check — 12:00–2:00 PM</strong></p></div>
+          <div class="alert-box">Do not feed during the midday check. Feeding during peak heat worsens heat stress. If birds are panting with wings spread — report to Farm Manager immediately.</div>
+          <div class="prose" style="margin-top:14px"><p><strong>Evening — 5:00 PM</strong></p></div>
+          <ol class="step-list">
+            <li>Dip boots. Wash hands. Unlock and enter.</li>
+            <li>Conduct full Evening Observation Walkthrough.</li>
+            <li>Report any deaths or newly sick birds immediately — do not wait until morning.</li>
+            <li>Top up all drinkers. Give evening feed. Close vents for the night. Fill in Form A.</li>
+            <li>Step out. Lock padlock. Hand Form A to Farm Manager for daily review and signature.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 6</span><span class="accordion-title">Feed Guide — Broilers & Turkey</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="warn-box">⚠ Anti-Sudden Death Rule (Weeks 4–8): Never dump full feed at once. Distribute evenly across all feeders. Ensure constant clean water at all times.</div>
+          <div class="prose"><p><strong>Broiler feed per 100 birds (Weeks 1–8):</strong></p></div>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Week</th><th>Feed Type</th><th>Daily/100</th><th>Weekly/100</th><th>Bags/100</th></tr>
+            <tr><td>Week 1</td><td>Starter</td><td>5 kg</td><td>35 kg</td><td>1.4</td></tr>
+            <tr><td>Week 2</td><td>Starter</td><td>8 kg</td><td>56 kg</td><td>2.24</td></tr>
+            <tr><td>Week 3</td><td>Grower</td><td>12 kg</td><td>84 kg</td><td>3.36</td></tr>
+            <tr><td>Week 4</td><td>Grower</td><td>16 kg</td><td>112 kg</td><td>4.48</td></tr>
+            <tr><td>Week 5–8</td><td>Finisher</td><td>20–27 kg</td><td>140–189 kg</td><td>5.6–7.56</td></tr>
+          </table></div>
+          <div class="prose" style="margin-top:12px"><p><strong>Total per 100 birds, full cycle: ~952 kg (~38 bags)</strong></p></div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 9</span><span class="accordion-title">Weight Monitoring & Benchmarks</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="prose"><p>Weigh twice a week. Randomly select 5–10 birds from different parts of the pen. Record on Form B. Calculate the average weight.</p></div>
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Week</th><th>Broiler Target</th><th>Turkey Target</th></tr>
+            <tr><td>Week 1</td><td>0.17 kg</td><td>0.12 kg</td></tr>
+            <tr><td>Week 2</td><td>0.40 kg</td><td>0.28 kg</td></tr>
+            <tr><td>Week 4</td><td>1.30 kg</td><td>0.95 kg</td></tr>
+            <tr><td>Week 6</td><td>2.30 kg</td><td>2.10 kg</td></tr>
+            <tr><td>Week 8</td><td>3.20 kg</td><td>3.60 kg</td></tr>
+            <tr><td>Week 12</td><td>N/A</td><td>7.00 kg</td></tr>
+          </table></div>
+          <div class="alert-box">More than 10% below benchmark or weight loss vs last weighing — report to Farm Manager immediately. Do not adjust feed without instruction.</div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-num">SEC 20</span><span class="accordion-title">Sanction Grid</span><span class="accordion-chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="table-wrap"><table class="info-table">
+            <tr><th>Breach</th><th>1st</th><th>2nd</th><th>3rd</th></tr>
+            <tr><td>Entering without dipping boots</td><td>Verbal warning</td><td>Written warning</td><td>Suspension</td></tr>
+            <tr><td>Using external boots inside pen</td><td>Written warning</td><td>Suspension</td><td>Termination</td></tr>
+            <tr><td>Unauthorised person found inside</td><td>Written warning</td><td>Suspension</td><td>Termination</td></tr>
+            <tr><td>Failing to isolate sick bird within 2 hrs</td><td>Written warning</td><td>Suspension</td><td>Termination</td></tr>
+            <tr><td>Administering substance without approval</td><td>Suspension</td><td>Termination</td><td>—</td></tr>
+            <tr><td>Processing birds without instruction</td><td>Written warning</td><td>Suspension</td><td>Termination</td></tr>
+            <tr><td>Padlock left unsecured</td><td>Verbal warning</td><td>Written warning</td><td>Suspension</td></tr>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+const pages = ['home','general','greenhouse','water','openfield','poultry'];
+
+function showPage(pageId, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+
+  // Update bottom nav
+  pages.forEach(id => {
+    const el = document.getElementById('bnav-' + id);
+    if (el) el.classList.toggle('active', id === pageId);
+  });
+
+  const titles = {
+    home:'SOP Library', general:'General Farm Ops', greenhouse:'Greenhouse',
+    water:'Water Management', openfield:'Open Field & Orchard', poultry:'Poultry Ops'
+  };
+
+  const bc = document.getElementById('breadcrumb');
+  if (pageId === 'home') {
+    bc.innerHTML = '<span>WGNI Farm</span><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">SOP Library</span>';
+  } else {
+    bc.innerHTML = `<span style="cursor:pointer;color:var(--stone)" onclick="showPage('home',document.querySelector('.nav-item'))">WGNI Farm</span><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">${titles[pageId]}</span>`;
+  }
+
+  window.scrollTo(0,0);
+  closeDrawer();
+}
+
+function toggleAccordion(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+function toggleDrawer() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('drawerOverlay');
+  const burger = document.getElementById('hamburger');
+  const isOpen = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeDrawer();
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    burger.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeDrawer() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('visible');
+  document.getElementById('hamburger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// SOP card click handlers
+document.querySelectorAll('.sop-card').forEach(card => {
+  const pageId = card.getAttribute('data-page');
+  if (!pageId) return;
+  const idx = pages.indexOf(pageId);
+  card.onclick = () => showPage(pageId, document.querySelectorAll('.nav-item')[idx]);
+});
+
+// Prevent body scroll when drawer is open on touch
+document.getElementById('sidebar').addEventListener('touchmove', e => e.stopPropagation(), { passive: false });
+</script>
+</body>
+</html>
