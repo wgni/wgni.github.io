@@ -164,5 +164,68 @@ footer { background: #060d06; padding: 32px 5vw; border-top: 1px solid rgba(46,1
   padding: 10px 12px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
   color: var(--text); outline: none; width: 100%;
 }
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  /* NAV */
+  .nav-cta { display: none; }
+
+  /* HERO - homepage split layout */
+  section[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 48px 5vw !important;
+  }
+
+  /* ALL 2-COLUMN GRIDS */
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns:1.1fr 0.9fr"],
+  div[style*="grid-template-columns:0.9fr 1.1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  /* ALL 3-COLUMN GRIDS */
+  div[style*="grid-template-columns:repeat(3,1fr)"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* ALL 4-COLUMN GRIDS */
+  div[style*="grid-template-columns:repeat(4,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* IMAGES - fix tall images on mobile */
+  img[style*="height:480px"] { height: 260px !important; }
+  img[style*="height:420px"] { height: 240px !important; }
+  img[style*="height:400px"] { height: 220px !important; }
+  img[style*="height:340px"] { height: 200px !important; }
+  img[style*="height:240px"] { height: 180px !important; }
+  img[style*="height:160px"] { height: 130px !important; }
+
+  /* HERO CARD - hide the right side image on homepage */
+  .d2 { display: none; }
+
+  /* STATS ROW */
+  div[style*="display:flex;gap:28px"] {
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* BUTTONS */
+  .cta-btns { flex-direction: column; align-items: center; }
+  div[style*="display:flex;gap:12px;flex-wrap:wrap"] {
+    flex-direction: column !important;
+  }
+
+  /* FOOTER */
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; flex-wrap: wrap; }
+
+  /* SECTIONS */
+  .section { padding: 40px 4vw; }
+}
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--green); background: #fff; }
 .form-group textarea { resize: vertical; min-height: 100px; }
