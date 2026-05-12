@@ -103,6 +103,77 @@
         </div>
       </div>
     </div>
+    <div class="divider"></div>
+
+<!-- BEACH VIDEO SLIDER -->
+<div class="section fade-up">
+  <div class="sec-tag">Beach Experience</div>
+  <h2 class="sec-title">Feel the <span>Maison Belle Vibe</span></h2>
+
+  <div style="margin-top:24px;">
+    <div class="slider-wrap" id="beachSlider">
+      <div class="slider-track" id="beachTrack">
+
+        <div class="slide">
+          <video src="images/beach1.mp4" muted playsinline></video>
+        </div>
+        <div class="slide">
+          <video src="images/beach2.mp4" muted playsinline></video>
+        </div>
+        <div class="slide">
+          <video src="images/beach3.mp4" muted playsinline></video>
+        </div>
+        <div class="slide">
+          <video src="images/beach4.mp4" muted playsinline></video>
+        </div>
+        <div class="slide">
+          <video src="images/beach5.mp4" muted playsinline></video>
+        </div>
+
+      </div>
+      <button class="slider-btn slider-prev" onclick="beachPrev()">&#8592;</button>
+      <button class="slider-btn slider-next" onclick="beachNext()">&#8594;</button>
+      <div class="slider-dots" id="beachDots"></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- BEACH PHOTO GALLERY -->
+<div class="section fade-up">
+  <div class="sec-tag">Photo Gallery</div>
+  <h2 class="sec-title">Moments at <span>Maison Belle</span></h2>
+
+  <div class="gallery-grid">
+    <div class="gallery-item" onclick="openLightbox(0)">
+      <img src="images/1.jpg" alt="Maison Belle"/>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(1)">
+      <img src="images/2.jpg" alt="Maison Belle"/>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(2)">
+      <img src="images/3.jpg" alt="Maison Belle"/>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(3)">
+      <img src="images/4.jpg" alt="Maison Belle"/>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(4)">
+      <img src="images/5.jpg" alt="Maison Belle"/>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(5)">
+      <img src="images/6.jpg" alt="Maison Belle"/>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&#times;</button>
+  <button class="lightbox-prev" onclick="lightboxPrev()">&#8592;</button>
+  <img id="lightboxImg" src="" alt=""/>
+  <button class="lightbox-next" onclick="lightboxNext()">&#8594;</button>
+</div>
 
     <!-- Hermosa Casa -->
     <div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:40px;align-items:start;">
