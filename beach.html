@@ -241,13 +241,11 @@
   // Hamburger menu
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobileMenu');
-
   if(hamburger && mobileMenu) {
     hamburger.addEventListener('click', () => {
       hamburger.classList.toggle('open');
       mobileMenu.classList.toggle('open');
     });
-
     mobileMenu.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         hamburger.classList.remove('open');
@@ -255,6 +253,83 @@
       });
     });
   }
+
+  // ── BEACH VIDEO SLIDER ──
+  let beachIndex = 0;
+  const beachTrack = document.getElementById('beachTrack');
+  const beachDots = document.getElementById('beachDots');
+  const beachSlides = beachTrack ? beachTrack.querySelectorAll('.slide') : [];
+  const beachVideos = beachTrack ? beachTrack.querySelectorAll('video') : [];
+
+  // Build dots
+  beachSlides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.classList.add('slider-dot');
+    if(i === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => goToBeachSlide(i));
+    beachDots.appendChild(dot);
+  });
+
+  function goToBeachSlide(n) {
+    beachVideos.forEach(v => { v.pause(); v.currentTime = 0; });
+    beachIndex = (n + beachSlides.length) % beachSlides.length;
+    beachTrack.style.transform = `translateX(-${beachIndex * 100}%)`;
+    document.querySelectorAll('#beachDots .slider-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === beachIndex);
+    });
+    beachVideos[beachIndex].play();
+  }
+
+  function beachNext() { goToBeachSlide(beachIndex + 1); }
+  function beachPrev() { goToBeachSlide(beachIndex - 1); }
+
+  // Auto advance every 6 seconds
+  let beachTimer = setInterval(() => beachNext(), 6000);
+  if(beachTrack) {
+    beachTrack.addEventListener('mouseenter', () => clearInterval(beachTimer));
+    beachTrack.addEventListener('mouseleave', () => {
+      beachTimer = setInterval(() => beachNext(), 6000);
+    });
+  }
+
+  // Play first video on load
+  if(beachVideos.length > 0) beachVideos[0].play();
+
+  // ── LIGHTBOX ──
+  const galleryImages = [
+    'images/1.jpg',
+    'images/2.jpg',
+    'images/3.jpg',
+    'images/4.jpg',
+    'images/5.jpg',
+    'images/6.jpg'
+  ];
+  let lightboxIndex = 0;
+
+  function openLightbox(i) {
+    lightboxIndex = i;
+    document.getElementById('lightboxImg').src = galleryImages[i];
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+  }
+
+  function lightboxNext() {
+    lightboxIndex = (lightboxIndex + 1) % galleryImages.length;
+    document.getElementById('lightboxImg').src = galleryImages[lightboxIndex];
+  }
+
+  function lightboxPrev() {
+    lightboxIndex = (lightboxIndex - 1 + galleryImages.length) % galleryImages.length;
+    document.getElementById('lightboxImg').src = galleryImages[lightboxIndex];
+  }
+
+  // Close lightbox when clicking background
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if(e.target === this) closeLightbox();
+  });
 </script>
 </body>
 </html>
